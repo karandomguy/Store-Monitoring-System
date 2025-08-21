@@ -33,19 +33,16 @@ class StoreMetricsCalculator:
         self._max_timestamp = None
     
     def ensure_timezone_aware(self, dt: datetime) -> datetime:
-        """Ensure datetime is timezone-aware (UTC if no timezone)."""
         if dt.tzinfo is None:
             return dt.replace(tzinfo=timezone.utc)
         return dt
     
     def ensure_timezone_naive(self, dt: datetime) -> datetime:
-        """Ensure datetime is timezone-naive."""
         if dt.tzinfo is not None:
             return dt.replace(tzinfo=None)
         return dt
     
     def get_max_timestamp(self) -> datetime:
-        """Get the maximum timestamp from the data to use as 'current time' for static datasets."""
         if self._max_timestamp is None:
             result = self.db.execute(select(func.max(StorePoll.timestamp_utc)))
             max_ts = result.scalar()
@@ -60,7 +57,6 @@ class StoreMetricsCalculator:
         return self._max_timestamp
     
     def get_store_timezone(self, store_id: str) -> pytz.timezone:
-        """Get store timezone with caching."""
         if store_id not in self._timezone_cache:
             stmt = select(StoreTimezone).where(StoreTimezone.store_id == store_id)
             tz_record = self.db.execute(stmt).scalar_one_or_none()
@@ -71,7 +67,6 @@ class StoreMetricsCalculator:
         return self._timezone_cache[store_id]
     
     def get_business_hours(self, store_id: str) -> Dict[int, Tuple[time, time]]:
-        """Get business hours for a store with caching."""
         if store_id not in self._business_hours_cache:
             stmt = select(BusinessHours).where(BusinessHours.store_id == store_id)
             hours = self.db.execute(stmt).scalars().all()
@@ -90,7 +85,6 @@ class StoreMetricsCalculator:
     def get_business_periods(
         self, store_id: str, start_time: datetime, end_time: datetime
     ) -> List[BusinessPeriod]:
-        """Generate all business periods within the given time range."""
         start_time = self.ensure_timezone_aware(start_time)
         end_time = self.ensure_timezone_aware(end_time)
         
@@ -154,7 +148,6 @@ class StoreMetricsCalculator:
     def get_store_obs(
         self, store_id: str, start_time: datetime, end_time: datetime
     ) -> List[StorePoll]:
-        """Get all obs for a store within time range."""
         start_time = self.ensure_timezone_aware(start_time)
         end_time = self.ensure_timezone_aware(end_time)
         
@@ -174,9 +167,7 @@ class StoreMetricsCalculator:
     def interpolate_status_for_period(
         self, period: BusinessPeriod, obs: List[StorePoll]
     ) -> List[TimeInterval]:
-        """
-        Core interpolation logic: Convert sparse obs into continuous time intervals.
-        """
+        
         period_start = self.ensure_timezone_aware(period.start)
         period_end = self.ensure_timezone_aware(period.end)
         
@@ -198,7 +189,7 @@ class StoreMetricsCalculator:
     def _handle_no_obs(
         self, period: BusinessPeriod, all_obs: List[StorePoll]
     ) -> List[TimeInterval]:
-        """Handle business period with no obs."""
+
         period_start = self.ensure_timezone_aware(period.start)
         period_end = self.ensure_timezone_aware(period.end)
         
@@ -227,7 +218,7 @@ class StoreMetricsCalculator:
     def _handle_single_obs(
         self, period: BusinessPeriod, obs: StorePoll
     ) -> List[TimeInterval]:
-        """Handle business period with single obs."""
+
         period_start = self.ensure_timezone_aware(period.start)
         period_end = self.ensure_timezone_aware(period.end)
         obs_time = self.ensure_timezone_aware(obs.timestamp_utc)
@@ -264,7 +255,7 @@ class StoreMetricsCalculator:
     def _handle_multiple_obs(
         self, period: BusinessPeriod, obs: List[StorePoll]
     ) -> List[TimeInterval]:
-        """Handle business period with multiple obs."""
+
         period_start = self.ensure_timezone_aware(period.start)
         period_end = self.ensure_timezone_aware(period.end)
         
@@ -326,7 +317,7 @@ class StoreMetricsCalculator:
         return self._merge_adjacent_intervals(intervals)
     
     def _merge_adjacent_intervals(self, intervals: List[TimeInterval]) -> List[TimeInterval]:
-        """Merge adjacent intervals with the same status."""
+
         if not intervals:
             return []
         
@@ -352,7 +343,7 @@ class StoreMetricsCalculator:
         return merged
     
     def calculate_uptime_downtime(self, intervals: List[TimeInterval]) -> Tuple[float, float]:
-        """Calculate total uptime and downtime in minutes."""
+
         uptime_minutes = 0.0
         downtime_minutes = 0.0
         
@@ -372,7 +363,7 @@ class StoreMetricsCalculator:
     def calculate_store_metrics(
         self, store_id: str, current_time: Optional[datetime] = None
     ) -> Dict[str, float]:
-        """Calculate all metrics for a single store."""
+
         try:
             if current_time is None:
                 current_time = self.get_max_timestamp()
