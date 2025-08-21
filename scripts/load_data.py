@@ -61,7 +61,7 @@ def download_and_extract_data():
 
 
 def create_tables():
-    print("🗄️ Creating database tables...")
+    print("Creating database tables...")
     try:
         Base.metadata.create_all(bind=sync_engine)
     except Exception as e:
@@ -103,7 +103,7 @@ def load_store_polls(file_path: str) -> int:
                 
                 total_inserted += len(records)
                 progress = (total_inserted / total_lines) * 100
-                print(f"   ⏳ Progress: {total_inserted:,}/{total_lines:,} ({progress:.1f}%)")
+                print(f"Progress: {total_inserted:,}/{total_lines:,} ({progress:.1f}%)")
                 
             except Exception as e:
                 print(f"Error in chunk {i}: {e}")
@@ -184,7 +184,7 @@ def load_timezones(file_path: str) -> int:
             db.bulk_save_objects(records)
             db.commit()
             
-            print(f"   ✅ Loaded: {len(records):,} records")
+            print(f"Loaded: {len(records):,} records")
             return len(records)
             
         except Exception as e:
@@ -209,11 +209,11 @@ def print_summary():
         hours_count = db.query(func.count(BusinessHours.id)).scalar() or 0
         tz_count = db.query(func.count(StoreTimezone.id)).scalar() or 0
         
-        print("\n📊 Summary:")
-        print(f"   🏪 Stores: {store_count:,}")
-        print(f"   📈 Observations: {poll_count:,}")
-        print(f"   🕐 Business hours: {hours_count:,}")
-        print(f"   🌍 Timezones: {tz_count:,}")
+        print("Summary:")
+        print(f"Stores: {store_count:,}")
+        print(f"Observations: {poll_count:,}")
+        print(f"Business hours: {hours_count:,}")
+        print(f"Timezones: {tz_count:,}")
         
         db.close()
         
@@ -222,6 +222,7 @@ def print_summary():
 
 
 def main():
+    print("=" * 50)
     print("Store Monitoring System - Data Loading")
     print("=" * 50)
     
