@@ -159,8 +159,8 @@ class StoreMetricsCalculator:
         
         obs = list(self.db.execute(stmt).scalars().all())
         
-        for obs in obs:
-            obs.timestamp_utc = self.ensure_timezone_aware(obs.timestamp_utc)
+        for ob in obs:
+            ob.timestamp_utc = self.ensure_timezone_aware(ob.timestamp_utc)
         
         return obs
     
@@ -173,10 +173,10 @@ class StoreMetricsCalculator:
         
         # Filter obs
         period_obs = []
-        for obs in obs:
-            obs_time = self.ensure_timezone_aware(obs.timestamp_utc)
+        for ob in obs:
+            obs_time = self.ensure_timezone_aware(ob.timestamp_utc)
             if period_start <= obs_time <= period_end:
-                period_obs.append(obs)
+                period_obs.append(ob)
         
         if not period_obs:
             return self._handle_no_obs(period, obs)
@@ -196,12 +196,12 @@ class StoreMetricsCalculator:
         before_obs = []
         after_obs = []
         
-        for obs in all_obs:
-            obs_time = self.ensure_timezone_aware(obs.timestamp_utc)
+        for ob in all_obs:
+            obs_time = self.ensure_timezone_aware(ob.timestamp_utc)
             if obs_time < period_start:
-                before_obs.append(obs)
+                before_obs.append(ob)
             elif obs_time > period_end:
-                after_obs.append(obs)
+                after_obs.append(ob)
         
         if before_obs:
             # Status from the last obs

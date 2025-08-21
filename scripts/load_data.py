@@ -1,7 +1,3 @@
-"""
-Downloads official dataset and loads into database
-"""
-
 import os
 import sys
 import pandas as pd
@@ -22,6 +18,9 @@ def download_and_extract_data():
     print("Downloading dataset")
     
     data_dir = Path("/app/data")
+    if not os.access(data_dir, os.W_OK):
+        print("Warning: /app/data is read-only, using /tmp/data")
+        data_dir = Path("/tmp/data")
     data_dir.mkdir(exist_ok=True)
     
     zip_path = data_dir / "store-monitoring-data.zip"
@@ -29,6 +28,11 @@ def download_and_extract_data():
     # Data already exists
     if (data_dir / "store_status.csv").exists():
         return str(data_dir)
+
+    mounted_data = Path("/app/data")
+    if (mounted_data / "store_status.csv").exists():
+        print("Data found in mounted directory")
+        return str(mounted_data)
     
     # Zip file
     url = "https://storage.googleapis.com/hiring-problem-statements/store-monitoring-data.zip"
