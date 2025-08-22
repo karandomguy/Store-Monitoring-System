@@ -59,6 +59,8 @@ The system generates CSV reports with the following columns:
 
 ## How It Works
 
+<img width="960" height="889" alt="Flowchart" src="https://github.com/user-attachments/assets/994d84f2-d095-44e6-9f23-3adb4758837f" />
+
 The system:
 1. Downloads store polling data, business hours, and timezone information
 2. Calculates uptime/downtime using business hours filtering
